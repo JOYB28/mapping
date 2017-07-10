@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Mapping</string>
+    <string name="facebook_app_id">2028929977328084</string>
+    <string name="fb_login_protocol_scheme">fb2028929977328084</string>
 </resources>
