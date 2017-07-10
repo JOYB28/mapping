@@ -1,11 +1,11 @@
 package kr.ac.kaist.mapping.mapping;
 
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,10 +38,11 @@ import java.util.List;
 
 import kr.ac.kaist.mapping.mapping.model.Post;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, ClusterManager.OnClusterClickListener<Post>,
-        ClusterManager.OnClusterInfoWindowClickListener<Post>, ClusterManager.OnClusterItemClickListener<Post>,
-        ClusterManager.OnClusterItemInfoWindowClickListener<Post>
-{
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback,
+    ClusterManager.OnClusterClickListener<Post>,
+    ClusterManager.OnClusterInfoWindowClickListener<Post>,
+    ClusterManager.OnClusterItemClickListener<Post>,
+    ClusterManager.OnClusterItemInfoWindowClickListener<Post> {
   private ClusterManager<Post> clusterManager;
   private CallbackManager callbackManager;
 
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     });
 
     FragmentManager fragmentManager = getFragmentManager();
-    MapFragment mapFragment = (MapFragment)fragmentManager.findFragmentById(R.id.map);
+    MapFragment mapFragment = (MapFragment) fragmentManager.findFragmentById(R.id.map);
     mapFragment.getMapAsync(this);
   }
 
@@ -95,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     this.map = map;
     // Zoom to KAIST
     LatLng address = new LatLng(36.372253, 127.360398);
-    CameraPosition cp = new CameraPosition.Builder().target((address )).zoom(15).build();
+    CameraPosition cp = new CameraPosition.Builder().target((address)).zoom(15).build();
     map.animateCamera(CameraUpdateFactory.newCameraPosition(cp));
 
     clusterManager = new ClusterManager<Post>(this, this.map);
@@ -162,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
   }
   */
 
-  private class PostRenderer extends DefaultClusterRenderer<Post>{
+  private class PostRenderer extends DefaultClusterRenderer<Post> {
     private final IconGenerator iconGenerator = new IconGenerator(getApplicationContext());
     private final IconGenerator clusterIconGenerator = new IconGenerator(getApplicationContext());
     private final ImageView imageView;
@@ -183,7 +184,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
       imageView.setPadding(padding, padding, padding, padding);
       iconGenerator.setContentView(imageView);
     }
-    protected void onBeforeClusterItemRendered(Post post, MarkerOptions markerOptions){
+
+    protected void onBeforeClusterItemRendered(Post post, MarkerOptions markerOptions) {
       //Draw a single post
       //Set the info window to show their writer
       imageView.setImageResource(post.getPhoto());
@@ -191,53 +193,58 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
       markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon)).title(post.getWriter());
     }
 
-    protected void onBeforeClusterRendered(Cluster<Post> cluster, MarkerOptions markerOptions){
+    protected void onBeforeClusterRendered(Cluster<Post> cluster, MarkerOptions markerOptions) {
       //Draw multiple post
-      // Note: this method runs on the UI thread. Don't spend too much time in here (like in this example).
+      // Note: this method runs on the UI thread. Don't spend too much time in here
+      // (like in this example).
       List<Drawable> photos = new ArrayList<Drawable>(Math.min(4, cluster.getSize()));
       int width = dimension;
       int height = dimension;
 
-      for (Post p : cluster.getItems()){
+      for (Post p : cluster.getItems()) {
         //draw 4 at most
-        if(photos.size()==4) break;
+        if (photos.size() == 4) {
+          break;
+        }
         Drawable drawable = getResources().getDrawable(p.getPhoto());
-        drawable.setBounds(0,0,width,height);
+        drawable.setBounds(0, 0, width, height);
         photos.add(drawable);
       }
       MultiDrawable multiDrawable = new MultiDrawable(photos);
-      multiDrawable.setBounds(0,0, width, height);
+      multiDrawable.setBounds(0, 0, width, height);
 
       clusterImageView.setImageDrawable(multiDrawable);
       Bitmap icon = clusterIconGenerator.makeIcon(String.valueOf(cluster.getSize()));
       markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon));
     }
 
-    protected boolean shouldRenderAsCluster(Cluster cluster){
+    protected boolean shouldRenderAsCluster(Cluster cluster) {
       //Always render clusters
-      return cluster.getSize()>1;
+      return cluster.getSize() > 1;
     }
   }
 
-  public boolean onClusterClick(Cluster<Post> cluster){
+  @Override
+  public boolean onClusterClick(Cluster<Post> cluster) {
     //show a toast with some info when the cluster is clicked
     String writer = cluster.getItems().iterator().next().getWriter();
-    Toast.makeText(this, cluster.getSize() + "(including "+ writer + ")", Toast.LENGTH_SHORT).show();
+    Toast.makeText(this, cluster.getSize() + "(including " + writer + ")",
+        Toast.LENGTH_SHORT).show();
     // Zoom in the cluster. Need to create LatLngBounds and including all the cluster items
     // inside of bounds, then animate to center of the bounds.
 
     // Create the builder to collect all essential cluster items for the bounds.
     LatLngBounds.Builder builder = LatLngBounds.builder();
-    for(ClusterItem item : cluster.getItems()){
+    for (ClusterItem item : cluster.getItems()) {
       builder.include(item.getPosition());
     }
     //Get the LatLngBounds
     final LatLngBounds bounds = builder.build();
 
     //Animate camera to the bounds
-    try{
-      map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds,100));
-    }catch (Exception e){
+    try {
+      map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+    } catch (Exception e) {
       e.printStackTrace();
     }
     return true;
@@ -256,10 +263,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     // Does nothing, but you could go into the user's profile page, for example.
   }
 
-  private void addItems(){
-    clusterManager.addItem(new Post(Jinri,"Yoonseo","AAA",R.drawable.jinri, new Date()));
-    clusterManager.addItem(new Post(Arum,"Girl","BBB", R.drawable.arum, new Date()));
-    clusterManager.addItem(new Post(Mir,"Boy","CCC", R.drawable.mir, new Date()));
-    clusterManager.addItem(new Post(Sejong,"Anotehr girl","DDD", R.drawable.sejong, new Date()));
+  private void addItems() {
+    clusterManager.addItem(new Post(Jinri, "Yoonseo", "AAA", R.drawable.jinri, new Date()));
+    clusterManager.addItem(new Post(Arum, "Girl", "BBB", R.drawable.arum, new Date()));
+    clusterManager.addItem(new Post(Mir, "Boy", "CCC", R.drawable.mir, new Date()));
+    clusterManager.addItem(new Post(Sejong, "Anotehr girl", "DDD",
+        R.drawable.sejong, new Date()));
   }
 }
