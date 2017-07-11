@@ -1,15 +1,27 @@
 package kr.ac.kaist.mapping.mapping;
 
+import android.Manifest;
 import android.app.FragmentManager;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.facebook.CallbackManager;
@@ -46,21 +58,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
   private ClusterManager<Post> clusterManager;
   private CallbackManager callbackManager;
 
+  private GoogleMap map;
+
   // Examples -- to be deleted later
   private static final LatLng Jinri = new LatLng(36.374687, 127.359165);
   private static final LatLng Sejong = new LatLng(36.371422, 127.366625);
   private static final LatLng Mir = new LatLng(36.370540, 127.355763);
   private static final LatLng Arum = new LatLng(36.373812, 127.356680);
 
-  private GoogleMap map;
+
+  private static final int PERMISSION_REQUEST_CODE = 0;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    requestPermissions();
+
+    ListViewAdapter adapter = new ListViewAdapter();
+    ListView contactList = (ListView) findViewById(R.id.listContact);
+    contactList.setAdapter(adapter);
+
+    /* Facebook login process */
     callbackManager = CallbackManager.Factory.create();
-    LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
+    LoginButton loginButton = (LoginButton) findViewById(R.id.btnLogin);
     loginButton.setReadPermissions("email");
     loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
       @Override
@@ -80,8 +102,54 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
       }
     });
 
+    /* Mock data */
+    adapter.addItem_Me(ContextCompat.getDrawable(this, R.drawable.contact),
+        "KimYoonseo", "kimyoonseo@kaist.ac.kr");
+    adapter.addItem(ContextCompat.getDrawable(this, R.drawable.contact),
+        "KimYoonseo", "kimyoonseo@kaist.ac.kr");
+    adapter.addItem(ContextCompat.getDrawable(this, R.drawable.contact),
+        "KimYoonseo", "kimyoonseo@kaist.ac.kr");
+    adapter.addItem(ContextCompat.getDrawable(this, R.drawable.contact),
+        "KimYoonseo", "kimyoonseo@kaist.ac.kr");
+    adapter.addItem(ContextCompat.getDrawable(this, R.drawable.contact),
+        "KimYoonseo", "kimyoonseo@kaist.ac.kr");
+    adapter.addItem(ContextCompat.getDrawable(this, R.drawable.contact),
+        "KimYoonseo", "kimyoonseo@kaist.ac.kr");
+    adapter.addItem(ContextCompat.getDrawable(this, R.drawable.contact),
+        "KimYoonseo", "kimyoonseo@kaist.ac.kr");
+
+    /* Contact button */
+    ImageButton contactButton = (ImageButton) findViewById(R.id.btnContact);
+    contactButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+
+      }
+    });
+
+    /* Post button */
+    ImageButton postBtn = (ImageButton) findViewById(R.id.post_button);
+    postBtn.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Intent intent = new Intent(MainActivity.this, NewPostActivity.class);
+        startActivity(intent);
+      }
+    });
+
+    /* Move to current location */
+    FloatingActionButton btnCurrentLocation =
+        (FloatingActionButton) findViewById(R.id.btnCurrentLocation);
+    btnCurrentLocation.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        moveToCurrentLocation();
+      }
+    });
+
+    /* Set map */
     FragmentManager fragmentManager = getFragmentManager();
-    MapFragment mapFragment = (MapFragment) fragmentManager.findFragmentById(R.id.map);
+    MapFragment mapFragment = (MapFragment) fragmentManager.findFragmentById(R.id.fragMap);
     mapFragment.getMapAsync(this);
   }
 
@@ -94,74 +162,128 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
   @Override
   public void onMapReady(final GoogleMap map) {
     this.map = map;
-    // Zoom to KAIST
-    LatLng address = new LatLng(36.372253, 127.360398);
-    CameraPosition cp = new CameraPosition.Builder().target((address)).zoom(15).build();
+
+    LatLng location = GpsInfo.getInstance(MainActivity.this).getLocation();
+    CameraPosition cp = new CameraPosition.Builder().target((location)).zoom(15).build();
     map.animateCamera(CameraUpdateFactory.newCameraPosition(cp));
 
     clusterManager = new ClusterManager<Post>(this, this.map);
     clusterManager.setRenderer(new PostRenderer());
-    this.map.setOnCameraChangeListener(clusterManager);
-    this.map.setOnMarkerClickListener(clusterManager);
-    this.map.setOnInfoWindowClickListener(clusterManager);
     clusterManager.setOnClusterClickListener(this);
     clusterManager.setOnClusterInfoWindowClickListener(this);
     clusterManager.setOnClusterItemClickListener(this);
     clusterManager.setOnClusterItemInfoWindowClickListener(this);
+    map.setOnCameraChangeListener(clusterManager);
+    map.setOnMarkerClickListener(clusterManager);
+    map.setOnInfoWindowClickListener(clusterManager);
 
-    addItems();
+    addPhotos();
     clusterManager.cluster();
-
-    /*
-    // Examples
-    Bitmap orgImage1 = BitmapFactory.decodeResource(getResources(),R.drawable.arum);
-    Bitmap bmp = makeMarker(orgImage1);
-    map.addMarker(new MarkerOptions().position(Arum)
-            .icon(BitmapDescriptorFactory.fromBitmap(bmp))
-            // Specifies the anchor to be at a particular point in the marker image.
-            .anchor(0.5f, 1));
-
-    Bitmap orgImage2 = BitmapFactory.decodeResource(getResources(),R.drawable.jinri);
-    Bitmap bmp2 = makeMarker(orgImage2);
-    map.addMarker(new MarkerOptions().position(Jinri)
-            .icon(BitmapDescriptorFactory.fromBitmap(bmp2))
-            // Specifies the anchor to be at a particular point in the marker image.
-            .anchor(0.5f, 1));
-
-    Bitmap orgImage3 = BitmapFactory.decodeResource(getResources(),R.drawable.mir);
-    Bitmap bmp3 = makeMarker(orgImage3);
-    map.addMarker(new MarkerOptions().position(Mir)
-            .icon(BitmapDescriptorFactory.fromBitmap(bmp3))
-            // Specifies the anchor to be at a particular point in the marker image.
-            .anchor(0.5f, 1));
-
-    Bitmap orgImage4 = BitmapFactory.decodeResource(getResources(),R.drawable.sejong);
-    Bitmap bmp4 = makeMarker(orgImage4);
-    map.addMarker(new MarkerOptions().position(Sejong)
-            .icon(BitmapDescriptorFactory.fromBitmap(bmp4))
-            // Specifies the anchor to be at a particular point in the marker image.
-            .anchor(0.5f, 1));
-    */
-
   }
 
-  /*
-  public Bitmap makeMarker(Bitmap orgImage){
-    Bitmap.Config conf = Bitmap.Config.ARGB_8888;
-    Bitmap bmp = Bitmap.createBitmap(200, 200, conf);
-    Canvas canvas1 = new Canvas(bmp);
+  @Override
+  public boolean onClusterClick(Cluster<Post> cluster) {
+    LatLngBounds.Builder builder = LatLngBounds.builder();
+    for (ClusterItem item : cluster.getItems()) {
+      builder.include(item.getPosition());
+    }
+    final LatLngBounds bounds = builder.build();
 
-    Paint color = new Paint();
-    color.setTextSize(35);
-    color.setColor(Color.BLACK);
-
-    //Bitmap orgImage = BitmapFactory.decodeResource(getResources(),R.drawable.arum);
-    Bitmap resize = Bitmap.createScaledBitmap(orgImage,150,150,true);
-    canvas1.drawBitmap(resize,0,0,color);
-
-    return bmp;
+    map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+    return true;
   }
-  */
+
+  public void onClusterInfoWindowClick(Cluster<Post> cluster) {
+    // Does nothing, but you could go to a list of the users.
+  }
+
+  public boolean onClusterItemClick(Post item) {
+    // Does nothing, but you could go into the user's profile page, for example.
+    return false;
+  }
+
+  public void onClusterItemInfoWindowClick(Post item) {
+    // Does nothing, but you could go into the user's profile page, for example.
+  }
+
+  private void addPhotos() {
+    clusterManager.addItem(new Post(Jinri, "Yoonseo", "AAA", R.drawable.jinri, new Date()));
+    clusterManager.addItem(new Post(Arum, "Girl", "BBB", R.drawable.arum, new Date()));
+    clusterManager.addItem(new Post(Mir, "Boy", "CCC", R.drawable.mir, new Date()));
+    clusterManager.addItem(new Post(Sejong, "Anotehr girl", "DDD",
+        R.drawable.sejong, new Date()));
+  }
+
+  /**
+   * If outgoing calls permission is not granted, shows a dialog
+   * to make user would grant it.
+   */
+  private void requestPermissions() {
+    if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        != PackageManager.PERMISSION_GRANTED) {
+      ActivityCompat.requestPermissions(this,
+          new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+          PERMISSION_REQUEST_CODE);
+    }
+  }
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                         int[] grantResults) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    switch (requestCode) {
+      case PERMISSION_REQUEST_CODE:
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+          onPermissionGranted();
+        } else {
+          onPermissionDenied();
+        }
+        break;
+      default:
+        return;
+    }
+  }
+
+  /**
+   * If permissions are granted, do rest of jobs for initialization.
+   */
+  private void onPermissionGranted() {
+    onMapReady(map);
+  }
+
+  /**
+   * If permissions are denied, finishs the app and then moves
+   * to the settings to configure permission by hands.
+   */
+  private void onPermissionDenied() {
+    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+    dialogBuilder.setTitle(R.string.permission_denied_title);
+    dialogBuilder.setMessage(R.string.permission_denied_msg);
+    dialogBuilder.setCancelable(false);
+    dialogBuilder.setPositiveButton(R.string.permission_denied_confirm,
+        new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            dialog.dismiss();
+            final Intent intent = new Intent();
+            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.addCategory(Intent.CATEGORY_DEFAULT);
+            intent.setData(Uri.parse("package:" + MainActivity.this.getPackageName()));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+            MainActivity.this.startActivity(intent);
+            finishAndRemoveTask();
+          }
+        });
+    dialogBuilder.show();
+  }
+
+  private void moveToCurrentLocation() {
+    LatLng location = GpsInfo.getInstance(MainActivity.this).getLocation();
+    CameraPosition cp = new CameraPosition.Builder().target((location)).zoom(15).build();
+    map.animateCamera(CameraUpdateFactory.newCameraPosition(cp));
+  }
 
   private class PostRenderer extends DefaultClusterRenderer<Post> {
     private final IconGenerator iconGenerator = new IconGenerator(getApplicationContext());
@@ -222,52 +344,5 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
       //Always render clusters
       return cluster.getSize() > 1;
     }
-  }
-
-  @Override
-  public boolean onClusterClick(Cluster<Post> cluster) {
-    //show a toast with some info when the cluster is clicked
-    String writer = cluster.getItems().iterator().next().getWriter();
-    Toast.makeText(this, cluster.getSize() + "(including " + writer + ")",
-        Toast.LENGTH_SHORT).show();
-    // Zoom in the cluster. Need to create LatLngBounds and including all the cluster items
-    // inside of bounds, then animate to center of the bounds.
-
-    // Create the builder to collect all essential cluster items for the bounds.
-    LatLngBounds.Builder builder = LatLngBounds.builder();
-    for (ClusterItem item : cluster.getItems()) {
-      builder.include(item.getPosition());
-    }
-    //Get the LatLngBounds
-    final LatLngBounds bounds = builder.build();
-
-    //Animate camera to the bounds
-    try {
-      map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    return true;
-  }
-
-  public void onClusterInfoWindowClick(Cluster<Post> cluster) {
-    // Does nothing, but you could go to a list of the users.
-  }
-
-  public boolean onClusterItemClick(Post item) {
-    // Does nothing, but you could go into the user's profile page, for example.
-    return false;
-  }
-
-  public void onClusterItemInfoWindowClick(Post item) {
-    // Does nothing, but you could go into the user's profile page, for example.
-  }
-
-  private void addItems() {
-    clusterManager.addItem(new Post(Jinri, "Yoonseo", "AAA", R.drawable.jinri, new Date()));
-    clusterManager.addItem(new Post(Arum, "Girl", "BBB", R.drawable.arum, new Date()));
-    clusterManager.addItem(new Post(Mir, "Boy", "CCC", R.drawable.mir, new Date()));
-    clusterManager.addItem(new Post(Sejong, "Anotehr girl", "DDD",
-        R.drawable.sejong, new Date()));
   }
 }

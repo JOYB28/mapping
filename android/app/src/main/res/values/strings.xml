@@ -2,4 +2,10 @@
     <string name="app_name">Mapping</string>
     <string name="facebook_app_id">2028929977328084</string>
     <string name="fb_login_protocol_scheme">fb2028929977328084</string>
+    <string name="permission_denied_title">권한 설정 필요</string>
+    <string name="permission_denied_msg">서비스를 이용하시기 위해서는 권한 설정이 필요합니다.</string>
+    <string name="permission_denied_confirm">확인</string>
+    <string name="gps_disable_warning_title">GPS 활성화 필요</string>
+    <string name="gps_disable_warning_msg">서비스를 이용하시기 위해서는 GPS 활성화가 필요합니다.</string>
+    <string name="gps_disable_warning_confirm">설정</string>
 </resources>
