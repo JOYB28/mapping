@@ -47,6 +47,7 @@ class PhotoDetail(RetrieveAPIView):
     queryset = Photo.objects.all()
     serializer_class = PhotoSerializer
     permission_classes = (IsAuthenticated,)
+    lookup_url_kwarg = 'photo'
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -63,6 +64,12 @@ class UserDetail(RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (IsAuthenticated,)
+    lookup_url_kwarg = 'user'
+
+    def get_object(self):
+        if self.kwargs.get(self.lookup_url_kwarg) == 'me' and self.request.user.is_authenticated():
+            self.kwargs[self.lookup_url_kwarg] = self.request.user.pk
+        return super().get_object()
 
 
 class UserPhotoList(ListCreateAPIView):
@@ -71,6 +78,8 @@ class UserPhotoList(ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
+        if self.kwargs.get('user') == 'me' and self.request.user.is_authenticated():
+            self.kwargs['user'] = self.request.user.pk
         queryset = super().get_queryset().accessible_for(self.request.user)
         return queryset.filter(user_id=self.kwargs.get('user'))
 
@@ -80,6 +89,8 @@ class UserFriendsList(ListAPIView):
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
+        if self.kwargs.get('user') == 'me' and self.request.user.is_authenticated():
+            self.kwargs['user'] = self.request.user.pk
         try:
             user = User.objects.filter(pk=self.kwargs.get('user')).first()
         except:
@@ -87,6 +98,8 @@ class UserFriendsList(ListAPIView):
         return get_friends(user)
 
     def post(self, request, *args, **kwargs):
+        if kwargs.get('user') == 'me' and request.user.is_authenticated():
+            kwargs['user'] = request.user.pk
         user = User.objects.get(pk=kwargs['user'])
         social = UserSocialAuth.objects.get(provider='facebook', user=user)
         uid = social.uid
