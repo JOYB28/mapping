@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="kr.ac.kaist.mapping.mapping.NewPostActivity"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:background="#f7f7f7"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/cancel_button"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_margin="5dp"
+                android:background="#f7f7f7"
+                android:fontFamily="sans-serif"
+                android:gravity="center_vertical"
+                android:scaleType="fitXY"
+                android:src="@drawable/cancel"
+                android:textSize="20dp"/>
+
+            <TextView
+                android:layout_width="240dp"
+                android:layout_height="45dp"
+                android:layout_margin="5dp"
+                android:background="#8b9dc3"
+                android:gravity="center"
+                android:shadowColor="#f7f7f7"
+                android:text="NEW POST"
+                android:textSize="30dp"/>
+
+            <ImageButton
+                android:id="@+id/post_button"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_margin="5dp"
+                android:background="#f7f7f7"
+                android:scaleType="fitXY"
+                android:src="@drawable/pin"/>
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/linearLayout"
+            android:layout_above="@+id/isPublic">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/content"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_margin="5dp"
+                    android:gravity="top|start"/>
+
+                <ImageView
+                    android:id="@+id/image"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:contentDescription="Your picture..."/>
+            </LinearLayout>
+        </ScrollView>
+
+        <CheckedTextView
+            android:id="@+id/isPublic"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_above="@+id/gallery"
+            android:layout_alignParentStart="true"
+            android:background="#3b5998"
+            android:checked="false"
+            android:fontFamily="sans-serif"
+            android:gravity="center_vertical"
+            android:text="      Do you want to post in public?"
+            android:textColor="#000000"
+            android:textSize="15dp"/>
+
+        <Button
+            android:id="@+id/gallery"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:background="#8b9dc3"
+            android:fontFamily="sans-serif"
+            android:gravity="center_vertical"
+            android:text="Gallery"
+            android:textAlignment="center"
+            android:textColor="#000000"
+            android:textSize="25dp"/>
+
+    </RelativeLayout>
+
+
+</LinearLayout>
