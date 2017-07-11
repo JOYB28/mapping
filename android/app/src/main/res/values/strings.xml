@@ -2,10 +2,16 @@
     <string name="app_name">Mapping</string>
     <string name="facebook_app_id">2028929977328084</string>
     <string name="fb_login_protocol_scheme">fb2028929977328084</string>
+    <string name="mapping_client_id">52x2GEu9o1uBRLmvnBqnFUQAJnsVSnopKa5b0RjV</string>
+    <string name="mapping_client_secret">38LwgqVtrd3VCctZevaJP7mNQ9l3p5xeYkPOPSiOKJ4u8lONwwteszZw5nwA1f8U1hPHZhY3fVIYvpvFFV8jCsOYv73MVCixmvq6vs79tQ62sHxVTi9GLUdz9yL3qYIo</string>
     <string name="permission_denied_title">권한 설정 필요</string>
     <string name="permission_denied_msg">서비스를 이용하시기 위해서는 권한 설정이 필요합니다.</string>
     <string name="permission_denied_confirm">확인</string>
     <string name="gps_disable_warning_title">GPS 활성화 필요</string>
     <string name="gps_disable_warning_msg">서비스를 이용하시기 위해서는 GPS 활성화가 필요합니다.</string>
     <string name="gps_disable_warning_confirm">설정</string>
+    <string name="img_not_selected_warning_title">이미지 필요</string>
+    <string name="img_not_selected_warning_msg">포스트를 등록하기 위해서는 이미지가 필요합니다.</string>
+    <string name="img_not_selected_warning_confirm">확인</string>
+    <string name="img_not_selected_warning_cancel">취소</string>
 </resources>

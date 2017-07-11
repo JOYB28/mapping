@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import kr.ac.kaist.mapping.mapping.model.FacebookUser;
+
 /**
  * Created by q on 2017-07-10.
  */
@@ -53,7 +55,6 @@ public class ListViewAdapter extends BaseAdapter {
 
           icon.setImageDrawable(listViewItem.getIcon());
           name.setText(listViewItem.getName());
-          email.setText(listViewItem.getEmail());
           break;
         case ListViewItem.ITEM_VIEW_TYPES_ME:
           convertView = inflater.inflate(R.layout.login_item, parent, false);
@@ -84,15 +85,15 @@ public class ListViewAdapter extends BaseAdapter {
   /**
    *  Add friends' profile.
    */
-  public void addItem(Drawable icon, String name, String email) {
+  public void addItem(Drawable icon, FacebookUser user) {
     ListViewItem item = new ListViewItem();
 
     item.setIcon(icon);
-    item.setName(name);
-    item.setEmail(email);
+    item.setName(user.getName());
     item.setType(0);
 
     listViewItemList.add(item);
+    notifyDataSetChanged();
   }
 
   /**
@@ -107,6 +108,7 @@ public class ListViewAdapter extends BaseAdapter {
     item.setType(1);
 
     listViewItemList.add(item);
+    notifyDataSetChanged();
   }
 
 

@@ -42,6 +42,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0"
             tools:layout_editor_absoluteX="1dp"/>
+
         <TextView
             android:id="@+id/email"
             android:layout_width="wrap_content"
@@ -50,7 +51,6 @@
             android:layout_marginTop="8dp"
             android:fontFamily="sans-serif"
             android:gravity="center_vertical"
-            android:text="Email"
             android:textColor="#000000"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"

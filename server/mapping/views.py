@@ -83,6 +83,12 @@ class UserPhotoList(ListCreateAPIView):
         queryset = super().get_queryset().accessible_for(self.request.user)
         return queryset.filter(user_id=self.kwargs.get('user'))
 
+    def create(self, request, *args, **kwargs):
+        if kwargs.get('user') == 'me' and self.request.user.is_authenticated():
+            self.kwargs['user'] = self.request.user.pk
+            request.data['user'] = self.kwargs['user']
+        return super().create(self, request, *args, **kwargs)
+
 
 class UserFriendsList(ListAPIView):
     serializer_class = UserSerializer

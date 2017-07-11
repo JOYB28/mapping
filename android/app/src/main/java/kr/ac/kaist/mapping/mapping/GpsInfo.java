@@ -64,7 +64,7 @@ public class GpsInfo implements LocationListener {
   /**
    * Fetches current location
    */
-  public void updateLocation() {
+  private void updateLocation() {
     boolean isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     boolean isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     if (isGpsEnabled || isNetworkEnabled) {
