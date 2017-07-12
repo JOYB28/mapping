@@ -17,9 +17,12 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.LruCache;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -174,11 +177,27 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     });
 
     /* Contact button */
-    ImageButton contactButton = (ImageButton) findViewById(R.id.btnContact);
-    contactButton.setOnClickListener(new View.OnClickListener() {
+    final DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.dl_activity_main_drawer);
+    drawerLayout.addDrawerListener((new ActionBarDrawerToggle(this, drawerLayout, 0, 0) {
+      @Override
+      public void onDrawerClosed(View drawerView) {
+        super.onDrawerClosed(drawerView);
+      }
+
+      @Override
+      public void onDrawerOpened(View drawerView) {
+        super.onDrawerOpened(drawerView);
+      }
+    }));
+    ImageButton btnContact = (ImageButton) findViewById(R.id.btnContact);
+    btnContact.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-
+        if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
+          drawerLayout.closeDrawer(Gravity.LEFT);
+        } else {
+          drawerLayout.openDrawer(Gravity.LEFT);
+        }
       }
     });
 
@@ -413,24 +432,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public PhotoRender() {
       super(getApplicationContext(), map, clusterManager);
 
-      View multiProfile = getLayoutInflater().inflate(R.layout.multi_profile, null);
-      clusterIconGenerator.setContentView(multiProfile);
-      clusterImageView = (ImageView) multiProfile.findViewById(R.id.image);
-
       imageView = new ImageView(getApplicationContext());
+      clusterImageView = new ImageView(getApplicationContext());
       dimension = (int) getResources().getDimension(R.dimen.custom_profile_image);
       imageView.setLayoutParams(new ViewGroup.LayoutParams(dimension, dimension));
+      clusterImageView.setLayoutParams(new ViewGroup.LayoutParams(dimension, dimension));
       int padding = (int) getResources().getDimension(R.dimen.custom_profile_padding);
       imageView.setPadding(padding, padding, padding, padding);
+      clusterImageView.setPadding(padding, padding, padding, padding);
       iconGenerator.setContentView(imageView);
+      clusterIconGenerator.setContentView(clusterImageView);
     }
 
     @Override
     protected void onBeforeClusterItemRendered(final Photo photo, final MarkerOptions markerOptions) {
       Bitmap bitmap = getBitmapFromMemCache(photo.getImage());
-      Log.d("asdf", photo.getImage());
-      Log.d("asdf", (bitmap == null) + "");
-      Log.d("asdf", imgCache.missCount() + " " + imgCache.putCount());
       if (bitmap == null) {
         return;
       }
@@ -445,23 +461,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
       //Draw multiple post
       // Note: this method runs on the UI thread. Don't spend too much time in here
       // (like in this example).
-      List<Drawable> profilePhotos = new ArrayList<Drawable>(Math.min(4, cluster.getSize()));
-      int width = dimension;
-      int height = dimension;
-
       for (Photo photo : cluster.getItems()) {
-        // Draw 4 at most.
-        if (profilePhotos.size() == 4) break;
-        Drawable drawable = new BitmapDrawable(getResources(), getBitmapFromMemCache(photo.getImage()));
-        drawable.setBounds(0, 0, width, height);
-        profilePhotos.add(drawable);
+        Bitmap bitmap = getBitmapFromMemCache(photo.getImage());
+        if (bitmap == null) {
+          return;
+        }
+        clusterImageView.setImageBitmap(bitmap);
+        Bitmap icon = clusterIconGenerator.makeIcon();
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon))
+            .title(photo.getUser().getUsername());
+        return;
       }
-      MultiDrawable multiDrawable = new MultiDrawable(profilePhotos);
-      multiDrawable.setBounds(0, 0, width, height);
-
-      clusterImageView.setImageDrawable(multiDrawable);
-      Bitmap icon = iconGenerator.makeIcon(String.valueOf(cluster.getSize()));
-      markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon));
     }
 
     @Override

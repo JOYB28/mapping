@@ -14,4 +14,6 @@
     <string name="img_not_selected_warning_msg">포스트를 등록하기 위해서는 이미지가 필요합니다.</string>
     <string name="img_not_selected_warning_confirm">확인</string>
     <string name="img_not_selected_warning_cancel">취소</string>
+    <string name="open_drawer">Open drawer</string>
+    <string name="close_drawer">Close drawer</string>
 </resources>

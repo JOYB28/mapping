@@ -41,6 +41,7 @@
                 android:background="#8b9dc3"
                 android:gravity="center"
                 android:shadowColor="#f7f7f7"
+                android:textColor="#000000"
                 android:text="NEW POST"
                 android:textSize="30dp"/>
 

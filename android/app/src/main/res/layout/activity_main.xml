@@ -28,8 +28,8 @@
 
                 <ImageButton
                     android:id="@+id/btnContact"
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_margin="5dp"
                     android:background="#f7f7f7"
                     android:scaleType="fitXY"
@@ -40,16 +40,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="45dp"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginBottom="3dp"
-                    android:layout_marginTop="3dp"
-                    android:paddingBottom="12dp"
-                    android:paddingTop="12dp"
+                    android:layout_marginBottom="0dp"
+                    android:layout_marginTop="0dp"
+                    android:paddingBottom="11dp"
+                    android:paddingTop="11dp"
                     android:textSize="22sp"/>
 
                 <ImageButton
                     android:id="@+id/post_button"
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:src="@drawable/post"
                     android:scaleType="fitXY"
                     android:background="#f7f7f7"
