@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,10 +15,12 @@ import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.MenuItem;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -44,11 +48,17 @@ import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.google.maps.android.ui.IconGenerator;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import kr.ac.kaist.mapping.mapping.model.Post;
+
+import static kr.ac.kaist.mapping.mapping.R.drawable.contact;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback,
     ClusterManager.OnClusterClickListener<Post>,
@@ -56,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ClusterManager.OnClusterItemClickListener<Post>,
     ClusterManager.OnClusterItemInfoWindowClickListener<Post> {
   private ClusterManager<Post> clusterManager;
+
   private CallbackManager callbackManager;
 
   private GoogleMap map;
@@ -103,27 +114,42 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     });
 
     /* Mock data */
-    adapter.addItem_Me(ContextCompat.getDrawable(this, R.drawable.contact),
+    adapter.addItem_Me(ContextCompat.getDrawable(this, contact),
         "KimYoonseo", "kimyoonseo@kaist.ac.kr");
-    adapter.addItem(ContextCompat.getDrawable(this, R.drawable.contact),
+    adapter.addItem(ContextCompat.getDrawable(this, contact),
         "KimYoonseo", "kimyoonseo@kaist.ac.kr");
-    adapter.addItem(ContextCompat.getDrawable(this, R.drawable.contact),
+    adapter.addItem(ContextCompat.getDrawable(this, contact),
         "KimYoonseo", "kimyoonseo@kaist.ac.kr");
-    adapter.addItem(ContextCompat.getDrawable(this, R.drawable.contact),
+    adapter.addItem(ContextCompat.getDrawable(this, contact),
         "KimYoonseo", "kimyoonseo@kaist.ac.kr");
-    adapter.addItem(ContextCompat.getDrawable(this, R.drawable.contact),
+    adapter.addItem(ContextCompat.getDrawable(this, contact),
         "KimYoonseo", "kimyoonseo@kaist.ac.kr");
-    adapter.addItem(ContextCompat.getDrawable(this, R.drawable.contact),
+    adapter.addItem(ContextCompat.getDrawable(this, contact),
         "KimYoonseo", "kimyoonseo@kaist.ac.kr");
-    adapter.addItem(ContextCompat.getDrawable(this, R.drawable.contact),
+    adapter.addItem(ContextCompat.getDrawable(this, contact),
         "KimYoonseo", "kimyoonseo@kaist.ac.kr");
 
     /* Contact button */
-    ImageButton contactButton = (ImageButton) findViewById(R.id.btnContact);
-    contactButton.setOnClickListener(new View.OnClickListener() {
+    final DrawerLayout drawerLayout = (DrawerLayout)findViewById(R.id.dl_activity_main_drawer);
+    drawerLayout.addDrawerListener((new ActionBarDrawerToggle(this, drawerLayout, 0 ,0 ){
+      @Override
+      public void onDrawerClosed(View drawerView) {
+        super.onDrawerClosed(drawerView);
+      }
+      @Override
+      public void onDrawerOpened(View drawerView) {
+        super.onDrawerOpened(drawerView);
+      }
+    }));
+    ImageButton btnContact = (ImageButton) findViewById(R.id.btnContact);
+    btnContact.setOnClickListener(new View.OnClickListener(){
       @Override
       public void onClick(View v) {
-
+        if(drawerLayout.isDrawerOpen(Gravity.LEFT)){
+          drawerLayout.closeDrawer(Gravity.LEFT);
+        }else{
+          drawerLayout.openDrawer(Gravity.LEFT);
+        }
       }
     });
 
@@ -177,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     map.setOnMarkerClickListener(clusterManager);
     map.setOnInfoWindowClickListener(clusterManager);
 
-    addPhotos();
+    //addPhotos();
     clusterManager.cluster();
   }
 
@@ -207,11 +233,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
   }
 
   private void addPhotos() {
-    clusterManager.addItem(new Post(Jinri, "Yoonseo", "AAA", R.drawable.jinri, new Date()));
-    clusterManager.addItem(new Post(Arum, "Girl", "BBB", R.drawable.arum, new Date()));
-    clusterManager.addItem(new Post(Mir, "Boy", "CCC", R.drawable.mir, new Date()));
-    clusterManager.addItem(new Post(Sejong, "Anotehr girl", "DDD",
-        R.drawable.sejong, new Date()));
+
+    Bitmap a = getBitmapFromURL("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_kjfRVvQJUqFpcG9xEX-x9YIndjTy-QkSzpsyVAdj1mesdcpI9g");
+    Drawable d = new BitmapDrawable(getResources(), a);
+
+
+    clusterManager.addItem(new Post(Jinri, "Yoonseo", "AAA", a , new Date()));
+    //clusterManager.addItem(new Post(Arum, "Girl", "BBB", R.drawable.arum, new Date()));
+    //clusterManager.addItem(new Post(Mir, "Boy", "CCC", R.drawable.mir, new Date()));
+    //clusterManager.addItem(new Post(Sejong, "Anotehr girl", "DDD",
+    //    R.drawable.sejong, new Date()));
   }
 
   /**
@@ -310,7 +341,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onBeforeClusterItemRendered(Post post, MarkerOptions markerOptions) {
       //Draw a single post
       //Set the info window to show their writer
-      imageView.setImageResource(post.getPhoto());
+      imageView.setImageDrawable(new BitmapDrawable(getResources(), post.getPhoto()));
       Bitmap icon = iconGenerator.makeIcon();
       markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon)).title(post.getWriter());
     }
@@ -328,7 +359,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (photos.size() == 4) {
           break;
         }
-        Drawable drawable = getResources().getDrawable(p.getPhoto());
+        Drawable drawable = new BitmapDrawable(getResources(), p.getPhoto());
         drawable.setBounds(0, 0, width, height);
         photos.add(drawable);
       }
@@ -343,6 +374,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected boolean shouldRenderAsCluster(Cluster cluster) {
       //Always render clusters
       return cluster.getSize() > 1;
+    }
+  }
+  public static Bitmap getBitmapFromURL(String src) {
+    try {
+      URL url = new URL(src);
+      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+      connection.setDoInput(true);
+      connection.connect();
+      InputStream input = connection.getInputStream();
+      Bitmap myBitmap = BitmapFactory.decodeStream(input);
+      return myBitmap;
+    } catch (IOException e) {
+      // Log exception
+      return null;
     }
   }
 }

@@ -1,12 +1,14 @@
 package kr.ac.kaist.mapping.mapping.model;
 
+import android.graphics.Bitmap;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
 import java.util.Date;
 
 public class Post implements ClusterItem {
-  private final int photo;
+  private final Bitmap photo;
   private final String writer;
   private final LatLng position;
   private final String content;
@@ -21,7 +23,7 @@ public class Post implements ClusterItem {
    * @param pictureResource resource id for the picture of the post
    * @param date publish date
    */
-  public Post(LatLng position, String writer, String content, int pictureResource, Date date) {
+  public Post(LatLng position, String writer, String content, Bitmap pictureResource, Date date) {
     this.writer = writer;
     this.photo = pictureResource;
     this.position = position;
@@ -29,7 +31,7 @@ public class Post implements ClusterItem {
     this.date = date;
   }
 
-  public int getPhoto() {
+  public Bitmap getPhoto() {
     return photo;
   }
 

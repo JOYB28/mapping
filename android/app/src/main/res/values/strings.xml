@@ -8,4 +8,6 @@
     <string name="gps_disable_warning_title">GPS 활성화 필요</string>
     <string name="gps_disable_warning_msg">서비스를 이용하시기 위해서는 GPS 활성화가 필요합니다.</string>
     <string name="gps_disable_warning_confirm">설정</string>
+    <string name="open_drawer">Open drawer</string>
+    <string name="close_drawer">Close drawer</string>
 </resources>
